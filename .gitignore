@@ -1,0 +1,7 @@
+*.gt
+*.q
+*.ds
+*.out
+cmake-build-debug
+cmake-build-debug/*
+.idea
