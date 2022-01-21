@@ -1,0 +1,5 @@
+dataset_name gen
+n 70000
+d 50
+qn 100
+top_k 100

@@ -9,6 +9,7 @@
 #include <iostream>
 #include <fstream>
 #include <limits>
+#include <map>
 
 template <typename DType>
 inline DType gaussian(double mean=0, double sigma=1) {
@@ -45,6 +46,25 @@ DType calc_norm2_dis(int d, const DType *a, const DType *b) {
 template <typename DType>
 DType neg_data(int d, DType *a) {
     for (int i = 0; i < d; ++i) a[i] = -a[i];
+}
+
+using cpp_str = std::string;
+std::map<cpp_str, cpp_str> read_config(const cpp_str &path) {
+    std::map<cpp_str, cpp_str> res;
+
+    std::ifstream in(path);
+    if (!in) {
+        std::cout << "- In file util.h\n"
+                  << "  - in function read_config\n"
+                  << "  Could not open file: " << path << '\n';
+        return res;
+    }
+    cpp_str key, value;
+    while (!in.eof()) {
+        in >> key >> value;
+        res[key] = value;
+    }
+    return res;
 }
 
 //template <typename DType>

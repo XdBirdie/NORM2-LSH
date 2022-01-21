@@ -6,13 +6,14 @@
 #define LSH_DATA_H
 #include <string>
 #include <fstream>
+#include "util.h"
 
 using c_str = const char *;
-using parm_str = const std::string &;
 using std::ios;
+using std::string;
 
 template <typename DType>
-bool save_data(const std::string &path, DType *data, int len) {
+bool save_data(const string &path, DType *data, int len) {
     std::fstream out(path, ios::out | ios::binary);
     if (!out) {
         return false;
@@ -23,7 +24,7 @@ bool save_data(const std::string &path, DType *data, int len) {
 }
 
 template <typename DType>
-bool load_data(const std::string &path, DType *data, int len) {
+bool load_data(const string &path, DType *data, int len) {
     std::fstream in(path, ios::in | ios::binary);
     if (!in) {
         return false;
@@ -68,5 +69,24 @@ private:
     int n, d;
 };
 
+template <typename DType>
+class DataSet {
+public:
+    using GT = Result<DType>;
+    DataSet() = default;
+
+    void load_dataset(const string &dataset_path) {
+        path = dataset_path;
+        auto config_path = dataset_path + "/config";
+
+    }
+
+private:
+    std::string path;
+    DType *data_set;
+    DType *query_set;
+    GT *ground_truth;
+//    const DType *gi
+};
 
 #endif //LSH_DATA_H
