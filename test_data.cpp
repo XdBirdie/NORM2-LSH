@@ -8,8 +8,8 @@ using namespace std;
 
 
 void test1() {
-    string path = "/home/rain/Project/LSH/data/gen";
-    DataSet<double> ds(path);
+    string path = "/home/rain/Project/LSH/data/Yelp";
+    DataSet<float> ds(path);
     int n = ds.get_n(), d = ds.get_d();
     int qn = ds.get_qn(), k = ds.get_top_k();
     cout << "n:  " << n << '\n'
@@ -17,7 +17,7 @@ void test1() {
          << "qn: " << qn << '\n'
          << "k:  " << k << '\n';
 
-    const DataSet<double>::GT *gt = ds.get_gt_set();
+    auto *gt = ds.get_gt_set();
     for (int i = 0; i < qn; ++i) {
         cout << i << ": ";
         for (int j = 0; j < k; ++j) {
@@ -26,7 +26,7 @@ void test1() {
         cout << endl;
     }
 
-    const double *data_set = ds.get_data_set();
+    auto *data_set = ds.get_data_set();
     for (int i = 0; i < n; ++i) {
         cout << i << ": ";
         for (int j = 0; j < d; ++j) {
@@ -36,7 +36,7 @@ void test1() {
     }
 
 
-    const double *query_set = ds.get_query_set();
+    auto *query_set = ds.get_query_set();
     for (int i = 0; i < qn; ++i) {
         cout << i << ": ";
         for (int j = 0; j < d; ++j) {

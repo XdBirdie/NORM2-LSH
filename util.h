@@ -11,6 +11,47 @@
 #include <limits>
 #include <map>
 
+
+template <typename DType>
+struct Result {
+    int id;
+    DType value;
+
+    Result():id(0) {}
+    Result(int id, DType value):id(id), value(value) {}
+
+    template<class T>
+    explicit operator Result<T>() {return Result<T>(id, T(value));}
+
+    /**
+     * Define standard input and output
+     */
+    using os = std::ostream;
+    friend os &operator<<(os &out, const Result<DType> &res) {
+        out << res.id << ' ' << res.value;
+        return out;
+    }
+
+    /**
+     * Define file input and output
+     */
+    using ifs = std::ifstream;
+    friend ifs &operator>>(ifs &in, Result<DType> &res) {
+        in >> res.id >> res.value;
+        return in;
+    }
+
+    using ofs = std::ofstream;
+    friend ofs &operator<<(ofs &out, const Result<DType> &res) {
+        out << res.id << ' ' << res.value;
+        return out;
+    }
+};
+
+
+/**
+ * random number generator with corresponding to distribution
+ */
 template <typename DType>
 inline DType gaussian(double mean=0, double sigma=1) {
     static std::mt19937 mt(std::random_device{}());
@@ -25,6 +66,9 @@ inline DType uniform(double l, double r) {
     return urd(mt) * (r - l) + l;
 }
 
+/**
+ * Utility functions for manipulating data
+ */
 template <typename DType>
 DType calc_ip(int d, const DType *a, const DType *b) {
     DType res = 0;
@@ -48,6 +92,19 @@ DType neg_data(int d, DType *a) {
     for (int i = 0; i < d; ++i) a[i] = -a[i];
 }
 
+/**
+ * Converts the element type in array src to TarType
+ */
+template <typename SrcType, typename TarType>
+void cast_data(int d, SrcType *src, TarType *tar) {
+    while (d--) {
+        *tar++ = (TarType) *src++;
+    }
+}
+
+/**
+ * read/write config file
+ */
 using cpp_str = std::string;
 using Config = std::map<std::string, std::string>;
 Config read_config(const cpp_str &path) {
@@ -81,45 +138,6 @@ bool save_config(const cpp_str &path, const Config &config) {
     return true;
 }
 
-//template <typename DType>
-//DType calc_dis()
-
-template <typename DType>
-struct Result {
-    int id;
-    DType value;
-
-    Result():id(0) {}
-    Result(int id, DType value):id(id), value(value) {}
-//    bool operator<(const Result<DType> &y) const {
-//        return value > y.value;
-//    }
-
-    /**
-     * Define standard input and output
-     */
-    using os = std::ostream;
-    friend os &operator<<(os &out, const Result<DType> &res) {
-        out << res.id << ' ' << res.value;
-        return out;
-    }
-
-    /**
-     * Define file input and output
-     */
-
-    using ifs = std::ifstream;
-    friend ifs &operator>>(ifs &in, Result<DType> &res) {
-        in >> res.id >> res.value;
-        return in;
-    }
-
-    using ofs = std::ofstream;
-    friend ofs &operator<<(ofs &out, const Result<DType> &res) {
-        out << res.id << ' ' << res.value;
-        return out;
-    }
-};
 
 /**
  * defs

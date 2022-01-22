@@ -16,6 +16,15 @@ void test_save_config() {
 }
 
 int main() {
-    test_save_config();
+//    test_save_config();
+
+    Result<double> r(1, 10.5);
+    std::cout << r << "\n";
+    auto p = Result<int>(r);
+    std::cout << p << "\n";
+
+    std::cout << double(r) << "\n";
+
+//    double(1);
     return 0;
 }

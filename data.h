@@ -57,6 +57,7 @@ template <typename DType>
 bool save_gt(const string &path, Result<DType> *gt, int n, int k) {
     std::ofstream out(path);
     if (!out) {return false;}
+    out << std::fixed;
     for (int i = 0; i < n; ++i){
         out << i << ": ";
         Result<DType> *tmp = &gt[i * k];
@@ -113,7 +114,7 @@ public:
 
     DataSet() = default;
 
-    explicit DataSet(const string &dataset_path) { load_dataset(dataset_path); }
+    explicit DataSet(const string &dataset_path) { load(dataset_path); }
 
     ~DataSet() {
         delete[] data_set;
@@ -148,9 +149,12 @@ public:
         return config;
     }
 
-    void load_dataset(const string &dataset_path) {
-        path = dataset_path;
+    void load(const string &dataset_path) {
+        delete[] data_set;
+        delete[] query_set;
+        delete[] gt_set;
 
+        path = dataset_path;
         auto config_path = dataset_path + "/config";
 
         auto conf = read_config(config_path);
@@ -170,7 +174,11 @@ public:
 
         load_data(ds_path, data_set, n_ * d_);
         load_data(qs_path, query_set, qn_ * d_);
-        load_gt(gt_path, gt_set, n_, top_k_);
+        load_gt(gt_path, gt_set, qn_, top_k_);
+    }
+
+    void save() const {
+        save_to(path, dataset_name);
     }
 
     void save_to(const string &out_path, const string &ds_name) const {
@@ -181,9 +189,34 @@ public:
         auto gt_path = temp + ".gt";
 
         save_config(conf_path, generate_config());
-        save_data(ds_path, data_set);
-        save_data(qs_path, query_set);
-        save_gt(gt_path, gt_set, n_, top_k_);
+        save_data(ds_path, data_set, n_ * d_);
+        save_data(qs_path, query_set, qn_ * d_);
+        save_gt(gt_path, gt_set, qn_, top_k_);
+    }
+
+    template <typename T>
+    void save_as(const string &out_path, const string &ds_name) const {
+        auto conf_path = out_path + "/config";
+        auto temp = out_path + "/" + ds_name;
+        auto ds_path = temp + ".ds";
+        auto qs_path = temp + ".q";
+        auto gt_path = temp + ".gt";
+
+        save_config(conf_path, generate_config());
+
+        T *buffer = new T[std::max(n_, qn_) * d_];
+        cast_data(n_ * d_, data_set, buffer);
+        save_data(ds_path, buffer, n_ * d_);
+
+        cast_data(qn_ * d_, query_set, buffer);
+        save_data(qs_path, buffer, qn_ * d_);
+
+        T *gt_buf = new Result<T>[qn_ * top_k_];
+        cast_data(qn_ * top_k_, gt_set, gt_buf);
+        save_gt(gt_path, gt_buf, qn_, top_k_);
+
+        delete[] buffer;
+        delete[] gt_buf;
     }
 
     // getters
@@ -210,9 +243,9 @@ private:
     string dataset_name;
     string path;
 
-    DType *data_set;
-    DType *query_set;
-    GT *gt_set;
+    DType *data_set = nullptr;
+    DType *query_set = nullptr;
+    GT *gt_set = nullptr;
 };
 
 #endif //LSH_DATA_H
