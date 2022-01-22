@@ -10,9 +10,9 @@ int main() {
     /**
      * the parameters we need
      */
-    int n = 70000, qn = 100, d = 50;
+    int n = 70000, qn = 100, d = 500;
     int top_k = 100, candidate_num = n / 5;
-    double w = 10;
+    double w = 50;
 
     // out path
     std::string data_path = "/home/rain/Project/LSH/data/gen";
@@ -49,8 +49,8 @@ int main() {
     }
     fout.close();
 
-    // test neg query
-    neg_data(qn * d, query);
+//     test neg query
+//    neg_data(qn * d, query);
 
     std::cout << "-------------------------\n"
               << "|          LSH          |\n"

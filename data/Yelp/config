@@ -1,0 +1,6 @@
+dataset_name Yelp
+data_type float
+n 77079
+d 51
+qn 100
+top_k 100

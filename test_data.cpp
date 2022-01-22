@@ -1,0 +1,62 @@
+//
+// Created by rain on 2022/1/22.
+//
+
+#include <iostream>
+#include "data.h"
+using namespace std;
+
+
+void test1() {
+    string path = "/home/rain/Project/LSH/data/gen";
+    DataSet<double> ds(path);
+    int n = ds.get_n(), d = ds.get_d();
+    int qn = ds.get_qn(), k = ds.get_top_k();
+    cout << "n:  " << n << '\n'
+         << "d:  " << d << '\n'
+         << "qn: " << qn << '\n'
+         << "k:  " << k << '\n';
+
+    const DataSet<double>::GT *gt = ds.get_gt_set();
+    for (int i = 0; i < qn; ++i) {
+        cout << i << ": ";
+        for (int j = 0; j < k; ++j) {
+            cout << gt[i*k + j] << ", ";
+        }
+        cout << endl;
+    }
+
+    const double *data_set = ds.get_data_set();
+    for (int i = 0; i < n; ++i) {
+        cout << i << ": ";
+        for (int j = 0; j < d; ++j) {
+            cout << data_set[i * d + j] << " ";
+        }
+        cout << endl;
+    }
+
+
+    const double *query_set = ds.get_query_set();
+    for (int i = 0; i < qn; ++i) {
+        cout << i << ": ";
+        for (int j = 0; j < d; ++j) {
+            cout << query_set[i * d + j] << " ";
+        }
+        cout << endl;
+    }
+}
+
+void test2() {
+    string a = "12321";
+    const string & b = a;
+    cout << typeid(b).name() << " " << typeid(a).name() << endl;
+    cout << stoi(b) << '\n';
+    string path = "/home/rain/Project/LSH/data/gen";
+    DataSet<double> dataSet(path);
+    cout << dataSet.get_n() << '\n';
+}
+
+int main() {
+    test1();
+    return 0;
+}

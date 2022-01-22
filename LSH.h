@@ -41,7 +41,7 @@ public:
         for (int i = 0; i < d; ++i) {
             res += proj_a[i] * data[i];
         }
-        return SigType(std::abs(res / w));
+        return SigType(res / w);
     }
 
 private:

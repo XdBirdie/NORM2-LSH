@@ -49,22 +49,36 @@ DType neg_data(int d, DType *a) {
 }
 
 using cpp_str = std::string;
-std::map<cpp_str, cpp_str> read_config(const cpp_str &path) {
-    std::map<cpp_str, cpp_str> res;
-
+using Config = std::map<std::string, std::string>;
+Config read_config(const cpp_str &path) {
+    Config config;
     std::ifstream in(path);
     if (!in) {
         std::cout << "- In file util.h\n"
                   << "  - in function read_config\n"
                   << "  Could not open file: " << path << '\n';
-        return res;
+        return config;
     }
     cpp_str key, value;
     while (!in.eof()) {
         in >> key >> value;
-        res[key] = value;
+        config[key] = value;
     }
-    return res;
+    return config;
+}
+
+bool save_config(const cpp_str &path, const Config &config) {
+    std::ofstream out(path);
+    if (!out) {
+        std::cout << "- In file util.h\n"
+                  << "  - in function read_config\n"
+                  << "  Could not open file: " << path << '\n';
+        return false;
+    }
+    for (auto [key, value] : config) {
+        out << key << ' ' << value << '\n';
+    }
+    return true;
 }
 
 //template <typename DType>
@@ -81,10 +95,23 @@ struct Result {
 //        return value > y.value;
 //    }
 
+    /**
+     * Define standard input and output
+     */
     using os = std::ostream;
     friend os &operator<<(os &out, const Result<DType> &res) {
         out << res.id << ' ' << res.value;
         return out;
+    }
+
+    /**
+     * Define file input and output
+     */
+
+    using ifs = std::ifstream;
+    friend ifs &operator>>(ifs &in, Result<DType> &res) {
+        in >> res.id >> res.value;
+        return in;
     }
 
     using ofs = std::ofstream;
