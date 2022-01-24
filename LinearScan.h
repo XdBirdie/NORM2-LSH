@@ -6,7 +6,6 @@
 #define LSH_LINEARSCAN_H
 
 #include "util.h"
-#include "data.h"
 #include "list.h"
 
 template <typename DType>
@@ -39,6 +38,21 @@ private:
     const DType *data;
     int n, d;
 };
+
+
+template <typename DType>
+void ground_truth(int n, int qn, int d, int k,
+                  DType *ds, DType *qs, Result<DType> *gt) {
+    LinearScan<DType> ls(n, d, ds);
+    MinQueue<DType> mq(k);
+    for (int i = 0; i < qn; ++i) {
+        mq.clear();
+        std::cout << i << std::endl;
+        auto query = &qs[i * d];
+        ls.nns(query, mq);
+        mq.copy_to(&gt[i * k]);
+    }
+}
 
 
 #endif //LSH_LINEARSCAN_H

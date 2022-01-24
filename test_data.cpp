@@ -56,6 +56,15 @@ void test2() {
     cout << dataSet.get_n() << '\n';
 }
 
+void test3() {
+    const string path = "/home/rain/Project/LSH/data/Yelp/Yelp.gt";
+    const string out = "/home/rain/Project/LSH/data/Yelp/Yelp_2.gt";
+    int qn = 100, k = 100;
+    auto *gt = new Result<float>[qn*k];
+    load_gt_p2h(path, gt, qn, k);
+    save_gt(out, gt, qn, k);
+}
+
 int main() {
     test1();
     return 0;

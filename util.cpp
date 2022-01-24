@@ -23,8 +23,6 @@ int main() {
     auto p = Result<int>(r);
     std::cout << p << "\n";
 
-    std::cout << double(r) << "\n";
-
 //    double(1);
     return 0;
 }

@@ -49,6 +49,12 @@ struct Result {
 };
 
 
+template <typename DType, typename F>
+void for_data(DType *data, int len, const F &f) {
+    for (int i = 0; i < len; ++i)
+        f(data[i]);
+}
+
 /**
  * random number generator with corresponding to distribution
  */
@@ -137,7 +143,6 @@ bool save_config(const cpp_str &path, const Config &config) {
     }
     return true;
 }
-
 
 /**
  * defs

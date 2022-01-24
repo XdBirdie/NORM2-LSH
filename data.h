@@ -7,7 +7,9 @@
 
 #include <string>
 #include <fstream>
+#include <iomanip>
 #include "util.h"
+#include "LinearScan.h"
 
 using c_str = const char *;
 using std::ios;
@@ -36,13 +38,12 @@ bool load_data(const string &path, DType *data, int len) {
 }
 
 template <typename DType>
-bool load_gt(const string &path, Result<DType> *gt, int n, int k) {
-    std::cerr << path << "\n";
+bool load_gt(const string &path, Result<DType> *gt, int qn, int k) {
     std::ifstream in(path);
     if (!in) {return false;}
     int id;
     char c;
-    for (int i = 0; i < n; ++i) {
+    for (int i = 0; i < qn; ++i) {
         in >> id >> c;
         Result<DType> *tmp = &gt[id * k];
         for (int j = 0; j < k; ++j) {
@@ -54,18 +55,37 @@ bool load_gt(const string &path, Result<DType> *gt, int n, int k) {
 }
 
 template <typename DType>
-bool save_gt(const string &path, Result<DType> *gt, int n, int k) {
+bool save_gt(const string &path, Result<DType> *gt, int qn, int k) {
     std::ofstream out(path);
     if (!out) {return false;}
-    out << std::fixed;
-    for (int i = 0; i < n; ++i){
+    out << std::fixed << std::setprecision(10);
+    for (int i = 0; i < qn; ++i){
         out << i << ": ";
         Result<DType> *tmp = &gt[i * k];
         for (int j = 0; j < k; ++j) {
             out << tmp[j] << ", ";
         }
+        out << "\n";
     }
 
+    return true;
+}
+
+template <typename DType>
+bool load_gt_p2h(const string &path, Result<DType> *gt, int qn, int k) {
+    std::ifstream in(path);
+    if (!in) {return false;}
+    int id;
+    char c;
+    for (int i = 0; i < qn; ++i) {
+        in >> id;
+        --id;
+        Result<DType> *tmp = &gt[id * k];
+        for (int j = 0; j < k; ++j) {
+            in >> c >> tmp[j].id >> c >> tmp[j].value;
+        }
+    }
+    in.close();
     return true;
 }
 
@@ -73,11 +93,8 @@ bool save_gt(const string &path, Result<DType> *gt, int n, int k) {
 template<typename DType>
 class Generator {
 public:
-    Generator(int n, int d) : n(n), d(d) {
-        data = new DType[n * d];
-        for (int i = 0; i < n; ++i) {
-            generate(data + i * d);
-        }
+    Generator(int n, int d): n(n), d(d) {
+        data = nullptr;
     }
 
 //    Generator(int n, int d, )
@@ -88,7 +105,13 @@ public:
             a[i] = gaussian<DType>();
     }
 
-    DType *operator()() const {
+    DType *operator()() {
+        if (!data) {
+            data = new DType[n * d];
+            for (int i = 0; i < n; ++i) {
+                generate(data + i * d);
+            }
+        }
         return data;
     }
 
@@ -107,12 +130,20 @@ private:
 
 template<typename DType>
 class DataSet {
-private:
-
 public:
     using GT = Result<DType>;
 
     DataSet() = default;
+
+    DataSet(int n, int qn, int d, int k):n_(n), qn_(qn), d_(d), top_k_(k) {
+        data_set = new DType[n_ * d_];
+        query_set = new DType[qn_ * d_];
+        gt_set = new GT[top_k_ * qn_];
+
+        for_data(data_set, n_ * d_, [&](DType &x) {x = gaussian<DType>();});
+        for_data(query_set, qn_ * d_, [&](DType &x) {x = gaussian<DType>();});
+        ground_truth(n_, qn_, d_, top_k_, data_set, query_set, gt_set);
+    }
 
     explicit DataSet(const string &dataset_path) { load(dataset_path); }
 
@@ -140,10 +171,10 @@ public:
 
     Config generate_config() const {
         Config config;
-        config["n"] = std::string(n_);
-        config["qn"] = std::string(qn_);
-        config["d"] = std::string(d_);
-        config["top_k"] = std::string(top_k_);
+        config["n"] = std::to_string(n_);
+        config["qn"] = std::to_string(qn_);
+        config["d"] = std::to_string(d_);
+        config["top_k"] = std::to_string(top_k_);
 
         config["dataset_name"] = dataset_name;
         return config;
@@ -172,23 +203,39 @@ public:
         query_set = new DType[qn_ * d_];
         gt_set = new GT[qn_ * top_k_];
 
-        load_data(ds_path, data_set, n_ * d_);
-        load_data(qs_path, query_set, qn_ * d_);
-        load_gt(gt_path, gt_set, qn_, top_k_);
+        if (!load_data(ds_path, data_set, n_ * d_)) {
+            std::cerr << "In " << (__FILE__) << ", " << (__FUNCTION__) << '\n';
+            std::cerr << "Error when load " << ds_path << "!\n";
+            return;
+        }
+        if (!load_data(qs_path, query_set, qn_ * d_)) {
+            std::cerr << "In " << (__FILE__) << ", " << (__FUNCTION__) << '\n';
+            std::cerr << "Error when load " << qs_path << "!\n";
+            return;
+        }
+        if (!load_gt(gt_path, gt_set, qn_, top_k_)) {
+            std::cerr << "In " << (__FILE__) << ", " << (__FUNCTION__) << '\n';
+            std::cerr << "Error when load " << gt_path << "!\n";
+            return;
+        }
     }
 
     void save() const {
         save_to(path, dataset_name);
     }
 
-    void save_to(const string &out_path, const string &ds_name) const {
+    void save_to(const string &out_path, const string &ds_name) {
+        dataset_name = ds_name;
+
         auto conf_path = out_path + "/config";
         auto temp = out_path + "/" + ds_name;
         auto ds_path = temp + ".ds";
         auto qs_path = temp + ".q";
         auto gt_path = temp + ".gt";
 
-        save_config(conf_path, generate_config());
+        auto config = generate_config();
+
+        save_config(conf_path, config);
         save_data(ds_path, data_set, n_ * d_);
         save_data(qs_path, query_set, qn_ * d_);
         save_gt(gt_path, gt_set, qn_, top_k_);
@@ -247,5 +294,6 @@ private:
     DType *query_set = nullptr;
     GT *gt_set = nullptr;
 };
+
 
 #endif //LSH_DATA_H

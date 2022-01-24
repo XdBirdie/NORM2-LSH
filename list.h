@@ -51,8 +51,11 @@ public:
         }
     }
 
-    const Result<DType> *ptr() const {
+    const Item *ptr() const {
         return list;
+    }
+    void copy_to(Item *other) const {
+        for (int i = 0; i < cnt; ++i) other[i] = list[i];
     }
 
     using os = std::ostream;
@@ -65,7 +68,7 @@ public:
 protected:
     int max_size;
     int cnt;
-    Result<DType> *list;
+    Item *list;
 };
 
 template <typename DType>

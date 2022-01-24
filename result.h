@@ -31,7 +31,6 @@ public:
             else r = sqrt((res[j].value + 1e-9) / (gt[j].value + 1e-9));
             sum += std::log(r);
         }
-        std::cout << sum << '\n';
         return std::exp(sum / k);
     }
     
@@ -66,7 +65,6 @@ public:
         double recall = 100.0 * cnt / top_k;
         double precision = 100.0 * cnt / check_k;
         double ratio = calc_ratio(top_k, gt, res);
-        std::cout << "recall: " << recall << "\n";
 
         g_recall += recall;
         g_precision += precision;
