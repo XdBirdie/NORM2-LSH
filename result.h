@@ -73,7 +73,7 @@ public:
 
         ++num;
 
-        return {g_recall, g_precision, g_ratio, g_fraction};
+        return {recall, precision, ratio, 100.0 * check_k / n};
     }
 
     double overall_recall() const {return g_recall / num;}

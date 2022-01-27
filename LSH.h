@@ -135,6 +135,7 @@ public:
         rks = new Item[n];
     }
 
+
     ~LSH() {
         delete[] hashes;
         delete[] data_sig;
@@ -147,7 +148,7 @@ public:
 
         for (int i = 0; i < n; ++i) {
             rks[i].id = i;
-            rks[i].value = query_sig.match2(data_sig[i]);
+            rks[i].value = query_sig.match(data_sig[i]);
         }
 
         std::sort(rks, rks + n, [](Item x, Item y) {return x.value > y.value; });
@@ -161,7 +162,7 @@ public:
         int cnt = 0;
         for_candidates(steps, query, [&](int id) {
             auto candidate = &data[id*d];
-            auto dis = calc_norm2_dis(d, query, candidate);
+            auto dis = std::abs(calc_norm2_dis(d, query, candidate));
             list.insert(id, dis);
             ++cnt;
         });

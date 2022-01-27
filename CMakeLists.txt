@@ -13,3 +13,4 @@ add_executable(list list.cpp)
 
 add_executable(util util.cpp)
 add_executable(test_data test_data.cpp)
+add_executable(p2h p2h.cpp)

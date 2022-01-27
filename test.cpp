@@ -5,13 +5,17 @@
 #include <iostream>
 #include <fstream>
 #include <limits>
+#include "data.h"
 using namespace std;
 
 int main() {
-    char c;
-    int x, y;
-    cin >> x >> c >> y;
-    cout << x << '$' << c << '$' << y << endl;
-
+    string path = "/home/rain/Project/LSH/data/Yelp";
+    DataSet<float> yelp(path);
+    int n = yelp.get_n(), qn = yelp.get_qn();
+    int d = yelp.get_d(), k = yelp.get_top_k();
+    cout << "n: " << n << '\n'
+         << "qn: " << qn << '\n'
+         << "d: " << d << '\n'
+         << "k: " << k << '\n';
     return 0;
 }
